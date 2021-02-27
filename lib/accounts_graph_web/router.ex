@@ -11,12 +11,20 @@ defmodule AccountsGraphWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug OpenApiSpex.Plug.PutApiSpec, module: AccountsGraphWeb.ApiSpec
   end
 
-  scope "/", AccountsGraphWeb do
+  scope "/" do
     pipe_through :browser
 
-    get "/", PageController, :index
+    get "/", AccountsGraphWeb.PageController, :index
+    get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/v1/openapi"
+  end
+
+  scope "/api/v1" do
+    pipe_through :api
+    resources "/users", AccountsGraphWeb.UserController, only: [:update]
+    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
   end
 
   scope "/api" do
